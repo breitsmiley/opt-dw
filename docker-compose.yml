@@ -1,0 +1,76 @@
+version: '3.7'
+
+# Volumes
+#================================================
+volumes:
+  opt-hnm-db:
+
+services:
+
+  # LNM
+  #----------------------------------------
+  opt-lnm:
+    image: breitsmiley/opt-nest-dev:latest
+    environment:
+      - APP_D_ENTRYPOINT_MODE=init
+    volumes:
+      - type: bind
+        source: ./apps/opt-lnm
+        target: /app
+    ports:
+      - "${OPT_LNM_DEBUG_PORT}:9229"
+      - "${OPT_LNM_HTTP_PORT}:3000"
+    command: ["npm", "run", "start:dev"]
+#    command: ["npm", "run", "start:debug"]
+#    command: ["npm", "run", "start-dw:debug"]
+#    command: ["ping", "127.0.0.1"]
+    depends_on:
+      - opt-hnm
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  # HNM
+  #----------------------------------------
+  opt-hnm:
+    image: breitsmiley/opt-nest-dev:latest
+    environment:
+      - APP_D_ENTRYPOINT_MODE=init
+    volumes:
+      -   type: bind
+          source: ./apps/opt-hnm
+          target: /app
+    ports:
+      - "${OPT_HNM_DEBUG_PORT}:9229"
+      - "${OPT_HNM_HTTP_PORT}:3000"
+    command: ["npm", "run", "start:dev"]
+#    command: ["npm", "run", "start:debug"]
+#    command: ["npm", "run", "start-dw:debug"]
+#    command: ["ping", "127.0.0.1"]
+    depends_on:
+      - opt-hnm-db
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  opt-hnm-db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_DB=opt-hnm
+      - POSTGRES_USER=opt-hnm
+      - POSTGRES_PASSWORD=opt-hnm
+    volumes:
+      - type: volume
+        source: opt-hnm-db
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./docker/opt-hnm-db/pg-config-file.cnf
+        target: /etc/postgresql/postgresql.conf
+    ports:
+      - "${OPT_HNM_DB_PORT}:5432"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
