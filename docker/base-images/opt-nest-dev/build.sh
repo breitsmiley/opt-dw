@@ -2,7 +2,7 @@
 
 # DOCKER HUB Registry
 ##-------------------------------
-VERSION=0.0.1
+VERSION=0.0.2
 DOCKER_REGISTRY_HOST="breitsmiley"
 IMAGE_NAME="opt-nest-dev"
 BASIC_TAG_NAME="$DOCKER_REGISTRY_HOST/$IMAGE_NAME"
