@@ -4,6 +4,7 @@ version: '3.7'
 #================================================
 volumes:
   opt-hnm-db:
+  opt-mm-db:
 
 services:
 
@@ -70,6 +71,51 @@ services:
         target: /etc/postgresql/postgresql.conf
     ports:
       - "${OPT_HNM_DB_PORT}:5432"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+
+  # MM
+  #----------------------------------------
+  opt-mm:
+    image: breitsmiley/opt-nest-dev:latest
+    environment:
+      - APP_D_ENTRYPOINT_MODE=init
+    volumes:
+      -   type: bind
+          source: ./apps/opt-mm
+          target: /app
+    ports:
+      - "${OPT_MM_DEBUG_PORT}:9229"
+      - "${OPT_MM_HTTP_PORT}:3000"
+    command: ["npm", "run", "start:dev"]
+#    command: ["npm", "run", "start:debug"]
+#    command: ["npm", "run", "start-dw:debug"]
+#    command: ["ping", "127.0.0.1"]
+    depends_on:
+      - opt-mm-db
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  opt-mm-db:
+    image: postgres:11-alpine
+    environment:
+      - POSTGRES_DB=opt-mm
+      - POSTGRES_USER=opt-mm
+      - POSTGRES_PASSWORD=opt-mm
+    volumes:
+      - type: volume
+        source: opt-mm-db
+        target: /var/lib/postgresql/data
+      - type: bind
+        source: ./docker/opt-mm-db/pg-config-file.cnf
+        target: /etc/postgresql/postgresql.conf
+    ports:
+      - "${OPT_MM_DB_PORT}:5432"
     logging:
       options:
         max-size: "10m"
