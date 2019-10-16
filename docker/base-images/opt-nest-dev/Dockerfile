@@ -1,4 +1,4 @@
-ARG NODE_VERSION=12.12.0
+ARG NODE_VERSION=10.16.3
 
 FROM node:${NODE_VERSION}-alpine
 
@@ -8,6 +8,9 @@ FROM node:${NODE_VERSION}-alpine
 # GIT + Python
 RUN apk --no-cache add git
 #RUN apk --no-cache add g++ gcc libgcc libstdc++ linux-headers make python
+# https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md#node-gyp-alpine
+RUN apk add --no-cache python make g++
+
 
 #RUN npm install -g npm@${NPM_VERSION}
 RUN npm i -g @nestjs/cli
